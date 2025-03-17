@@ -3,9 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Skolrepon
+Python_OPA24_code_along
+Python_OPA24
+
 # C extensions
 *.so
-
 # Distribution / packaging
 .Python
 build/
