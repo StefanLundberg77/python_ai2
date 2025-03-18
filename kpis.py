@@ -2,6 +2,22 @@ from read_data import read_data
 
 df = read_data()
 
+
+# labels = ("total number of employees ", "average age", "average salary")
+#     cols = st.columns(3)
+#     kpis = (total_number, avg_age, avg_salary)
+
+
+#print()
+roster = df.index.values.max()+1
+avg_age = df["Age"].sum()/100
+avg_salary = df["Salary_SEK"].sum()/100
+print(roster, avg_age, avg_salary)
+
+
+# total_number = roster
+# average_age = 
+# print(roster)
 # approved = df.query("Beslut == 'Beviljad'")
 # number_approved = len(approved)
 # total_applications = len(df)
