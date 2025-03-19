@@ -2,22 +2,22 @@ from read_data import read_data
 import duckdb
 import streamlit as st
 
-
+# bar chart showing number of employees accross departments
 #streamlit plot
-# def approved_by_area_bar():
+def counts_per_dep():
 
-#     df = read_data()
+    df = read_data()
 
-#     df = duckdb.query("""
-#                     SELECT utbildningsområde, COUNT(*) AS Beviljade
-#                     FROM df
-#                     WHERE beslut = 'Beviljad'
-#                     GROUP BY utbildningsområde
-#                     ORDER BY Beviljade
-#                     DESC
-#                     """).df()
+    df = duckdb.query("""
+                    SELECT 
+                    COALESCE(Department, 'Other') AS Department,
+                    COUNT(*) AS Count
+                    FROM df
+                    GROUP BY COALESCE(Department, 'Other')
+                    ORDER BY Count DESC;
+                    """).df()
     
-#     st.bar_chart(df, x = "Utbildningsområde", y = "Beviljade")
+    st.bar_chart(df, x = "Department", y = "Count")
 
 #matplotlib plot
 

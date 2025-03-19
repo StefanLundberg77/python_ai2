@@ -1,5 +1,5 @@
 from read_data import read_data
-
+from charts import counts_per_dep
 df = read_data()
 
 
@@ -9,16 +9,13 @@ df = read_data()
 
 
 #print()
-roster = df.index.values.max()+1
+tot_staff_num = df.index.values.max()
 avg_age = df["Age"].sum()/100
 avg_salary = df["Salary_SEK"].sum()/100
-print(roster, avg_age, avg_salary)
+print(tot_staff_num, avg_age, avg_salary)
 
 
-# total_number = roster
-# average_age = 
-# print(roster)
-# approved = df.query("Beslut == 'Beviljad'")
+
 # number_approved = len(approved)
 # total_applications = len(df)
 # approved_percentage = f"{number_approved / total_applications*100:.1f}%"
