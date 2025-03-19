@@ -1,9 +1,9 @@
 import streamlit as st
 import plotly_express as px
 import matplotlib.pyplot as plt
-from kpis import tot_staff_num, avg_age, avg_salary
+from kpis import total_staff_number, avg_age, avg_salary, salary
 from read_data import read_data
-from charts import counts_per_dep
+from charts import counts_per_dep, salary_hist, salaries_department
 
 df = read_data()
 
@@ -16,7 +16,7 @@ def layout():
 
     labels = ("total number of employees", "average age", "average salary")
     cols = st.columns(3)
-    kpis = (tot_staff_num, avg_age, avg_salary)
+    kpis = (total_staff_number, avg_age, avg_salary)
 
     for col, label, kpi in zip(cols, labels, kpis):
         with col: 
@@ -24,11 +24,15 @@ def layout():
     
     counts_per_dep()
 
+    salary_hist()
+
+    salaries_department()
+
     st.markdown("## Raw data")
 
     st.dataframe(df)
 
-
+# streamlit run Exercise_2/supahcoolsoft.py
 
 if __name__ == "__main__":
     layout()

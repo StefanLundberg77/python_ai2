@@ -1,3 +1,3 @@
 # python_ai2
 
-- folder för övningar i kursen
+- Exercises for course data-engineering-OPA24
