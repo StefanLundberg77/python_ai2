@@ -1,9 +1,9 @@
 import streamlit as st
 import plotly_express as px
 import matplotlib.pyplot as plt
-from kpis import total_staff_number, avg_age, avg_salary, salary
+from kpis import total_staff_number, avg_age, avg_salary
 from read_data import read_data
-from charts import counts_per_dep, salary_hist, salaries_department
+from charts import counts_per_dep, salary_hist, salaries_department, age_hist, age_by_dep
 
 df = read_data()
 
@@ -22,12 +22,22 @@ def layout():
         with col: 
             st.metric(label=label, value=kpi)
     
+    st.markdown("## Number of employees accross departments")
     counts_per_dep()
 
+    st.markdown("## Salary distribution")
     salary_hist()
 
+    st.markdown("## Salaries by department")
     salaries_department()
 
+    st.markdown("## Age distribution")
+    age_hist()
+
+
+    st.markdown("## Age by department")
+    age_by_dep()
+    
     st.markdown("## Raw data")
 
     st.dataframe(df)
