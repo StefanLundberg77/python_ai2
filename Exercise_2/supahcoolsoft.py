@@ -1,6 +1,4 @@
 import streamlit as st
-import plotly_express as px
-import matplotlib.pyplot as plt
 from kpis import total_staff_number, avg_age, avg_salary
 from read_data import read_data
 from charts import counts_per_dep, salary_hist, salaries_department, age_hist, age_by_dep

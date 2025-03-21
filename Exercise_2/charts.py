@@ -1,11 +1,10 @@
-from read_data import read_data
+from read_data import read_data, read_pisa_data
 import duckdb
 import streamlit as st
 import matplotlib.pyplot as plt
-import pandas as pd
 import seaborn as sns
 import plotly_express as px
-import numpy as np
+
 
 
 # bar chart showing number of employees accross departments
@@ -98,3 +97,25 @@ def age_by_dep():
     ax.set_ylabel("Age")
     ax.set_title("Age distribution by department")
     st.pyplot(fig)
+
+    # pisa charts
+    # bar chart showing average PISA scores by location
+
+def score_by_location():
+    df = read_pisa_data()
+
+    df = duckdb.query("""SELECT
+                        AVG(Value) as Value, 
+                        LOCATION
+                        FROM df
+                        GROUP BY LOCATION 
+                        ORDER BY Value """).df()
+    
+    import plotly.express as px
+
+    fig = px.bar(df, x='LOCATION', y='Value', 
+                title='Average PISA Score by Location', 
+                color_discrete_sequence=['darkgreen'])
+    fig.update_layout(xaxis_tickangle=-45)
+    fig.update_yaxes(range=[0, 600])
+    st.plotly_chart(fig, use_container_width=True)
