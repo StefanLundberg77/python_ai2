@@ -1,6 +1,6 @@
 import streamlit as st
 from read_data import read_pisa_data
-from charts import score_by_location
+from charts import score_by_location, trend_chart
 from kpis import total_locations, total_records, subject_categories, time_range, indicators_categories
 df = read_pisa_data()
 
@@ -30,6 +30,16 @@ def layout():
     
     score_by_location()
 
+    st.title("PISA trend visualization")
+
+    with st.sidebar:
+        st.header("Filter")
+        country = st.selectbox("Choose country", df["LOCATION"].unique())
+        genders = st.multiselect("Choose gender", options=df["SUBJECT"].unique(), default=list(df["SEX"].unique()))
+        indicators = st.multiselect("Choose subject", options=df["INDICATOR"].unique(), default=list(df["INDICATOR"].unique()))
+        time_range = st.slider("Select year range", int(df["TIME"].min()), int(df["TIME"].max()), (int(df["TIME"].min()), int(df["TIME"].max())))
+
+    trend_chart(df, country, genders, indicators, time_range)
 
     st.markdown("## Raw data")
 

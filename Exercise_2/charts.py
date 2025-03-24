@@ -119,3 +119,34 @@ def score_by_location():
     fig.update_layout(xaxis_tickangle=-45)
     fig.update_yaxes(range=[0, 600])
     st.plotly_chart(fig, use_container_width=True)
+
+  
+def trend_chart(df, country, genders, indicators, time_range):
+    df = read_pisa_data()
+    # Filtrera data baserat på alla val
+    filtered_data = df[
+        (df["LOCATION"] == country) &
+        (df["SEX"].isin(genders)) &
+        (df["INDICATOR"].isin(indicators)) &
+        (df["TIME"] >= time_range[0]) &
+        (df["TIME"] <= time_range[1])
+    ]
+
+    if filtered_data.empty:
+        st.warning("No data matches the selected filters.")
+        return
+
+
+    fig = px.line(
+        filtered_data, 
+        x="TIME", 
+        y="Value", 
+        color="INDICATOR", 
+        line_dash="SUBJECT", 
+        markers=True, 
+        title=f"PISA trends for {country}",
+        hover_data=["SUBJECT", "TIME", "Value"]
+    )
+
+    fig.update_layout(width=800, height=500)
+    st.plotly_chart(fig, use_container_width=True)

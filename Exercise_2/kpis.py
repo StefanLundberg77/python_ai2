@@ -3,7 +3,7 @@ import duckdb
 import streamlit as st
 #supa data
 df = read_data()
-
+df_pisa = read_pisa_data()
 #calculate kpis for supah
 total_staff_number = len(df)
 salary = df["Salary_SEK"]
