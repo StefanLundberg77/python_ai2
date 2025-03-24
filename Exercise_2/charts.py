@@ -121,15 +121,15 @@ def score_by_location():
     st.plotly_chart(fig, use_container_width=True)
 
   
-def trend_chart(df, country, genders, indicators, time_range):
+def trend_chart(df, country, subjects, indicators, time_frame):
     df = read_pisa_data()
     # Filtrera data baserat på alla val
     filtered_data = df[
         (df["LOCATION"] == country) &
-        (df["SEX"].isin(genders)) &
+        (df["SUBJECT"].isin(subjects)) &
         (df["INDICATOR"].isin(indicators)) &
-        (df["TIME"] >= time_range[0]) &
-        (df["TIME"] <= time_range[1])
+        (df["TIME"] >= time_frame[0]) &
+        (df["TIME"] <= time_frame[1])
     ]
 
     if filtered_data.empty:

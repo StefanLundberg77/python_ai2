@@ -35,11 +35,11 @@ def layout():
     with st.sidebar:
         st.header("Filter")
         country = st.selectbox("Choose country", df["LOCATION"].unique())
-        genders = st.multiselect("Choose gender", options=df["SUBJECT"].unique(), default=list(df["SEX"].unique()))
+        subjects = st.multiselect("Choose subject", options=df["SUBJECT"].unique(), default=list(df["SUBJECT"].unique()))
         indicators = st.multiselect("Choose subject", options=df["INDICATOR"].unique(), default=list(df["INDICATOR"].unique()))
-        time_range = st.slider("Select year range", int(df["TIME"].min()), int(df["TIME"].max()), (int(df["TIME"].min()), int(df["TIME"].max())))
+        time_frame = st.slider("Select year range", int(df["TIME"].min()), int(df["TIME"].max()), (int(df["TIME"].min()), int(df["TIME"].max())))
 
-    trend_chart(df, country, genders, indicators, time_range)
+    trend_chart(df, country, subjects, indicators, time_frame)
 
     st.markdown("## Raw data")
 
