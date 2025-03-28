@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# duckdb
+.wal
+# dbeaver
+.project
+.dbeaver
+
 # Skolrepon
 Python_OPA24_code_along
 Python_OPA24
