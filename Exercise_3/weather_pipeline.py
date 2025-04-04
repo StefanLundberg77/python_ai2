@@ -68,10 +68,3 @@ if __name__=="__main__":
 
     run_pipeline()
 
-# # connect to db
-#con = duckdb.connect("weather.duckdb")
-
-# # view first rows
-# result = con.execute("SELECT * FROM staging.weather_by_city").fetchdf()
-
-# con.execute("SHOW TABLES FROM staging").fetchall()
