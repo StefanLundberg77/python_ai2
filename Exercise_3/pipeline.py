@@ -5,17 +5,18 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
-# testa utan om de funkar i name main
-# working_directory = Path(__file__).parent
-# os.chdir(working_directory)
+# load env for api keys
+load_dotenv()
 
-# create a func to store specific params for a certain api
-def get_params():
+# create class for weather api data
+class Weather_api:
+        def __init__(self, api_key, base_url, cities):
+            self.api_key = api_key
+            self.base_url = base_url
+            self.cities = cities
 
-    # load env
-    load_dotenv()
-
-    duckdb_name = "weather.duckdb"
+# create function to store params
+def get_weather_data(self):
 
     base_url = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -23,17 +24,14 @@ def get_params():
     cities = ["Göteborg","Stockholm","London","Paris","New York", "Tokyo"]
     
     # get keys
-    weather_api_key = os.getenv("WEATHER_API_KEY")
+    weather_api_key = os.getenv("WEATHER_API_KEY") 
 
-    # table name
-    table_name = "weather_by_city" 
-
-    for city in cities:
+    for city in self.cities:
         params = {
             "q": city,
             "appid": weather_api_key,
             "units": "metric"}
-        data = get_data(base_url, table_name, params, duckdb_name)
+        data = get_request(self.base_url, params)
 
         # return requested data
         yield {
@@ -46,15 +44,10 @@ def get_params():
             "wind_speed": data["wind"]["speed"],
             "cloudiness": data["clouds"]["all"]
         }
-
-# create a function to be used in the generator function
-def get_data(base_url, params):
+# funct for requests
+def get_request(base_url, params=None):
     response = requests.get(base_url, params=params)
-    return response.json()
-
-def data_resource():
-    for param in get_params():
-        yield param
+    return response.json
 
 # use the dlt.resource decorator to produce a dlt.resource object
 @dlt.resource(write_disposition="replace")
