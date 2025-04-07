@@ -9,21 +9,13 @@ from pathlib import Path
 # working_directory = Path(__file__).parent
 # os.chdir(working_directory)
 
-
-# create a function to be used in the generator function
-def get_data(base_url, params):
-    response = requests.get(base_url, params=params)
-    data = response.json()
-    return data
-
-# use the dlt.resource decorator to produce a dlt.resource object
-@dlt.resource(write_disposition="replace")
-
-# define the generator function with yield keyword, to be decorated by dlt.resource decorator
-def weather_data_resource():
+# create a func to store specific params for a certain api
+def get_params():
 
     # load env
     load_dotenv()
+
+    duckdb_name = "weather.duckdb"
 
     base_url = "https://api.openweathermap.org/data/2.5/weather"
 
@@ -33,13 +25,16 @@ def weather_data_resource():
     # get keys
     weather_api_key = os.getenv("WEATHER_API_KEY")
 
-    # loop through list to get data for each city
+    # table name
+    table_name = "weather_by_city" 
+
     for city in cities:
         params = {
-        "q": city,
-        "appid": weather_api_key,
-        "units": "metric"}
-        data = get_data(base_url, params)
+            "q": city,
+            "appid": weather_api_key,
+            "units": "metric"}
+        data = get_data(base_url, table_name, params, duckdb_name)
+
         # return requested data
         yield {
             "city": city,
@@ -52,13 +47,35 @@ def weather_data_resource():
             "cloudiness": data["clouds"]["all"]
         }
 
-def run_pipeline():
+# create a function to be used in the generator function
+def get_data(base_url, params):
+    response = requests.get(base_url, params=params)
+    return response.json()
+
+def data_resource():
+    for param in get_params():
+        yield param
+
+# use the dlt.resource decorator to produce a dlt.resource object
+@dlt.resource(write_disposition="replace")
+
+# define the generator function with yield keyword, to be decorated by dlt.resource decorator
+def data_resource(params):
+
+    # loop through list to get data for each param
+    for param in params:
+        get_params()
+        get_data()
+        return params()
+
+def run_pipeline(table_name,duckdb_name):
     # create a dlt-pipeline
     pipeline = dlt.pipeline(pipeline_name="weather_pipeline",
-                            destination=dlt.destinations.duckdb(f"{working_directory}/weather.duckdb"),
+                            destination=dlt.destinations.duckdb(f"{working_directory}/{duckdb_name}"),
                             dataset_name="staging"  # detta blir "schema" i DuckDB
                             )
-    load_info = pipeline.run(weather_data_resource(), table_name="weather_by_city")
+
+    load_info = pipeline.run(data_resource(), table_name=table_name)
     print(load_info)
 
 if __name__=="__main__":
@@ -66,5 +83,5 @@ if __name__=="__main__":
     working_directory = Path(__file__).parent
     os.chdir(working_directory)
 
-    run_pipeline()
+    run_pipeline(table_name=)
 
