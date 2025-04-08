@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # load env for api keys
-load_dotenv()
+# load_dotenv()
 
 # create class for weather api data
 class Weather_api:
@@ -54,11 +54,11 @@ class Parking_api:
                 "timestamp": datetime.now().isoformat(),
                 "address": properties.get("ADRESS"),
                 "city_district": properties.get("CITY_DISTRICT"),
-                "parking_price": properties.get("PARKING_RATE", "Ej angiven")
+                "parking_price": properties.get("PARKING_RATE")
             }
             # test to check json 
-            print(data["features"][0])
-            exit()
+            # print(data["features"][0])
+            # exit()
 # resources to get
 # timestamp
 # address
@@ -85,28 +85,36 @@ def parking_data_resource(api:Parking_api):
 # create source for adding and running another resource
 @dlt.source
 
-# sources for both resources returning data
-def weather_source():
-
+# source function return resources data
+def weather_source(
+    api_key: str = dlt.secrets.value,
+    base_url: str = dlt.config.value,
+    cities: list[str] = dlt.config.value
+    ):
+    
     weather_api = Weather_api(
-        api_key=os.getenv("WEATHER_API_KEY"),
-        base_url="https://api.openweathermap.org/data/2.5/weather",
-        cities=["Göteborg","Stockholm","London","Paris","New York", "Tokyo"]       
+        api_key=api_key,
+        base_url=base_url,
+        cities=cities
     )
     return weather_data_resource(weather_api)
 
-def parking_source():
-
+@dlt.source
+def parking_source(
+    api_key: str = dlt.secrets.value,
+    base_url: str = dlt.config.value
+    ):
+    
     parking_api = Parking_api(
-        api_key=os.getenv("STOCKHOLM_API_KEY"),
-        base_url="https://openparking.stockholm.se/LTF-Tolken/v1/servicedagar/weekday/måndag"
-        ) #/{WEEKDAY}?maxFeatures={MAXFEATURES}&outputFormat={FORMAT}&callback={CALLBACK}&apiKey={APIKEY}
+        api_key=api_key,
+        base_url=base_url
+    )
     return parking_data_resource(parking_api)
 
 # run function for pipeline
-def run_pipeline(source, duckdb_name, table_name):
+def run_pipeline(source, duckdb_name, table_name, pipeline_name):
     # create a dlt-pipeline
-    pipeline = dlt.pipeline(pipeline_name=table_name + "_pipeline",
+    pipeline = dlt.pipeline(pipeline_name=pipeline_name,
                             destination=dlt.destinations.duckdb(os.path.join(working_directory, duckdb_name)),# trying without strformat
                             #destination=dlt.destinations.duckdb(f"{working_directory}/(duckdb_name)"),
                             dataset_name="staging"
@@ -125,11 +133,13 @@ if __name__=="__main__":
     run_pipeline(
         source=weather_source(),
         duckdb_name="weather.duckdb",
-        table_name="weather_by_city"
+        table_name="weather_by_city",
+        pipeline_name="weather_source"
     )
 
     run_pipeline(
         source=parking_source(),
         duckdb_name="stockholm_parking.duckdb",
-        table_name="parking_addresses"
+        table_name="parking_addresses",
+        pipeline_name="parking_source"
     )
