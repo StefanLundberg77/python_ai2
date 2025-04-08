@@ -79,6 +79,8 @@ def get_request(base_url, params=None):
 def weather_data_resource(api:Weather_api):
     yield from api.get_weather_data()
 
+@dlt.resource(write_disposition="replace")
+
 def parking_data_resource(api:Parking_api):
     yield from api.get_parking_data()
 
@@ -91,7 +93,12 @@ def weather_source(
     base_url: str = dlt.config.value,
     cities: list[str] = dlt.config.value
     ):
-    
+
+    print("DEBUG values:")
+    print("api_key:", api_key)
+    print("base_url:", base_url)
+    print("cities:", cities)
+
     weather_api = Weather_api(
         api_key=api_key,
         base_url=base_url,
@@ -121,25 +128,26 @@ def run_pipeline(source, duckdb_name, table_name, pipeline_name):
                             )
     
     load_info = pipeline.run(source,table_name=table_name)
-    # print message for test
+    # print message for ensuring success
     print(f"loaded {table_name} to {duckdb_name}")
     print(load_info)
 
 if __name__=="__main__":
+    
     #confirm the working directory is the one storing the .dlt folder, which is the same as the folder storing the current file
     working_directory = Path(__file__).parent
     os.chdir(working_directory)
 
     run_pipeline(
+        pipeline_name="weather_source",
         source=weather_source(),
         duckdb_name="weather.duckdb",
-        table_name="weather_by_city",
-        pipeline_name="weather_source"
+        table_name="weather_by_city"
     )
 
     run_pipeline(
+        pipeline_name="parking_source",
         source=parking_source(),
         duckdb_name="stockholm_parking.duckdb",
-        table_name="parking_addresses",
-        pipeline_name="parking_source"
+        table_name="parking_addresses"
     )
