@@ -18,7 +18,6 @@ class Weather_api:
         # create function to store params
         def get_weather_data(self):
 
-
             for city in self.cities:
                 params = {
                     "q": city,
@@ -37,9 +36,40 @@ class Weather_api:
                     "wind_speed": data["wind"]["speed"],
                     "cloudiness": data["clouds"]["all"]
                 }
+class Parking_api:
+    def __init__(self, api_key, base_url):
+        self.api_key = api_key
+        self.base_url = base_url
+
+    def get_parking_data(self):
+        params = {
+            "outputFormat": "json",
+            "apiKey": self.api_key
+        }
+        data = get_request(self.base_url, params=params)
+
+        for feature in data.get("features", []):
+            properties = feature.get("properties", {})
+            yield {
+                "timestamp": datetime.now().isoformat(),
+                "address": properties.get("ADRESS", "Ej angiven"),
+                "city_district": properties.get("OMRADE", "Ej angiven"),
+                "parking_price": properties.get("PARKERINGSTAXA", "Ej angiven")
+            }
+            # test to check json 
+            print(data["features"][0])
+            exit()
+# resources to get
+# timestamp
+# address
+# city district
+# parking price
 # funct for requests
+
+# request function with responce status check
 def get_request(base_url, params=None):
     response = requests.get(base_url, params=params)
+    response.raise_for_status() #https://3.python-requests.org/user/quickstart/
     return response.json()
 
 # dlt.resource decorator to produce a dlt.resource object
@@ -49,27 +79,42 @@ def get_request(base_url, params=None):
 def weather_data_resource(api:Weather_api):
     yield from api.get_weather_data()
 
+def parking_data_resource(api:Parking_api):
+    yield from api.get_parking_data()
+
+# create source for adding and running another resource
 @dlt.source
 
-def single_source():
+# sources for both resources returning data
+def weather_source():
 
     weather_api = Weather_api(
         api_key=os.getenv("WEATHER_API_KEY"),
         base_url="https://api.openweathermap.org/data/2.5/weather",
         cities=["Göteborg","Stockholm","London","Paris","New York", "Tokyo"]       
     )
-
     return weather_data_resource(weather_api)
 
-def run_pipeline(source, table_name="weather_by_city", duckdb_name="weather.duckdb"):
+def parking_source():
+
+    parking_api = Parking_api(
+        api_key=os.getenv("STOCKHOLM_API_KEY"),
+        base_url="https://openparking.stockholm.se/LTF-Tolken/v1/servicedagar/weekday/måndag"
+        ) #/{WEEKDAY}?maxFeatures={MAXFEATURES}&outputFormat={FORMAT}&callback={CALLBACK}&apiKey={APIKEY}
+    return parking_data_resource(parking_api)
+
+# run function for pipeline
+def run_pipeline(source, duckdb_name, table_name):
     # create a dlt-pipeline
-    pipeline = dlt.pipeline(pipeline_name="weather_pipeline",
+    pipeline = dlt.pipeline(pipeline_name=table_name + "_pipeline",
                             destination=dlt.destinations.duckdb(os.path.join(working_directory, duckdb_name)),# trying without strformat
                             #destination=dlt.destinations.duckdb(f"{working_directory}/(duckdb_name)"),
                             dataset_name="staging"
                             )
     
-    load_info = pipeline.run(source, table_name=table_name)
+    load_info = pipeline.run(source,table_name=table_name)
+    # print message for test
+    print(f"loaded {table_name} to {duckdb_name}")
     print(load_info)
 
 if __name__=="__main__":
@@ -77,5 +122,14 @@ if __name__=="__main__":
     working_directory = Path(__file__).parent
     os.chdir(working_directory)
 
-    run_pipeline(single_source())
+    run_pipeline(
+        source=weather_source(),
+        duckdb_name="weather.duckdb",
+        table_name="weather_by_city"
+    )
 
+    run_pipeline(
+        source=parking_source(),
+        duckdb_name="stockholm_parking.duckdb",
+        table_name="parking_addresses"
+    )
