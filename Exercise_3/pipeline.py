@@ -52,9 +52,9 @@ class Parking_api:
             properties = feature.get("properties", {})
             yield {
                 "timestamp": datetime.now().isoformat(),
-                "address": properties.get("ADRESS", "Ej angiven"),
-                "city_district": properties.get("OMRADE", "Ej angiven"),
-                "parking_price": properties.get("PARKERINGSTAXA", "Ej angiven")
+                "address": properties.get("ADRESS"),
+                "city_district": properties.get("CITY_DISTRICT"),
+                "parking_price": properties.get("PARKING_RATE", "Ej angiven")
             }
             # test to check json 
             print(data["features"][0])
