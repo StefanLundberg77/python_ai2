@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: job_ads
+    description: "Renamed and cleaned job ads data"
+    columns:
+      - name: job_id
+        tests:
+          - not_null
+          - unique
+
+      - name: job_title
+        tests:
+          - not_null
+
+      - name: contact_email
+        tests:
+          - not_null
+
+  - name: job_ads_experience
+    description: "Joined job ads with required experiences"
+    columns:
+      - name: required_experience
+        tests:
+          - not_null
